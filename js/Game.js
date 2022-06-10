@@ -14,12 +14,76 @@ class Game {
     contagemJogador = player.getCount();
     carro1 = createSprite (width/2-50,height-100);
     carro1.addImage(carro1Img);
-
+    carro1.scale = 0.2
     carro2 = createSprite (width/2+100, height-100);
     carro2.addImage(carro2Img);
-
+    carro2.scale = 0.2
     carros = [carro1, carro2]
+    combustivel = new Group()
+    obstaculos =  new Group()
+    coin = new Group()
+    this.addSprites(coin,50,coinImg,0.09);
+    this.addSprites(combustivel,10,combustivelImg,0.02)
+    var obstaclesPositions = [
+      { x: width / 2 + 250, y: height - 800, image: obstaculo2 },
+      { x: width / 2 - 150, y: height - 1300, image: obstaculo1 },
+      { x: width / 2 + 250, y: height - 1800, image: obstaculo1 },
+      { x: width / 2 - 180, y: height - 2300, image: obstaculo2 },
+      { x: width / 2, y: height - 2800, image: obstaculo2 },
+      { x: width / 2 - 180, y: height - 3300, image: obstaculo1 },
+      { x: width / 2 + 180, y: height - 3300, image: obstaculo2 },
+      { x: width / 2 + 250, y: height - 3800, image: obstaculo2 },
+      { x: width / 2 - 150, y: height - 4300, image: obstaculo1 },
+      { x: width / 2 + 250, y: height - 4800, image: obstaculo2 },
+      { x: width / 2, y: height - 5300, image: obstaculo1 },
+      { x: width / 2 - 180, y: height - 5500, image: obstaculo2 }
+    ];
+    this.addSprites(obstaculos,obstaclesPositions.length,obstaculo1,0.04,obstaclesPositions)
   }
+
+  handleFuel(index){
+    carros[index-1].overlap(combustivel,function(collector,collected){
+      player.fuel = 185
+      collected.remove()
+    })
+  }
+
+  handleCoin(index){
+    carros[index-1].overlap(coin,function(collector,collected){
+      player.score += 20
+      player.update
+      collected.remove()
+    })
+  }
+
+  addSprites(spriteGroup, numberOfSprites, spriteImage, scale, positions = []) {
+    for (var i = 0; i < numberOfSprites; i++) {
+      var x, y;
+
+      //Se a matriz NÃO  estiver vazia
+      // adicionar as posições da matriz à x e y
+      if (positions.length > 0) {
+        x = positions[i].x;
+        y = positions[i].y;
+        spriteImage = positions[i].image;
+
+      } else {
+
+        //aleatório para as metades da tela em x e y
+      x = random(width / 2 + 150, width / 2 - 150);
+      y = random(-height * 4.5, height - 400);
+
+      }
+
+      //criar sprite nas posições aleatórias
+      var sprite = createSprite(x, y);
+      sprite.addImage("sprite", spriteImage);
+
+      sprite.scale = scale;
+      spriteGroup.add(sprite);
+
+    }
+  }  
 
   getState(){
     var gameStateR = database.ref("estadoJogo");
@@ -37,11 +101,11 @@ class Game {
   play(){
     this.mudanca()
     this.handleElements()
-    this.resetButton()
-    Player.getPlayerInf()
+    this.resetButtonf()
+    Player.getPlayersInf()
     if(allPlayers!== undefined){
-      image(pista,0,-height*5,width,height*6);
-      showLeaderboard()
+      image(pistaImg,0,-height*5,width,height*6);
+      this.showLeaderboard()
       var index = 0;
       for(var playerS in allPlayers){
         index +=1
@@ -53,10 +117,12 @@ class Game {
           stroke(10)
           fill("white")
           ellipse(x,y,60,60)
+          this.handleFuel
+          this.handleCoin
         }
       }
       this.playerControls()
-      drawSprites;
+      drawSprites();
     }
   
   }
@@ -65,14 +131,15 @@ class Game {
     if(keyIsDown(UP_ARROW)){
       player.positionY = player.positionY+10
       player.update()
+
     }
 
-    if(keyIsDown(LEFT_ARROW)){
+    if(keyIsDown(LEFT_ARROW) && player.positionX>width/3-50){
       player.positionX = player.positionX-5
       player.update()
     }
 
-    if(keyIsDown(RIGHT_ARROW)){
+    if(keyIsDown(RIGHT_ARROW) && player.positionX<width/2+300){
       player.positionX = player.positionX+5
       player.update()
     }
@@ -103,7 +170,7 @@ class Game {
     this.leader2.position(width / 3 - 50, 130);
   }
 
-  resetButton(){
+  resetButtonf(){
     this.resetButton.mousePressed(()=>{
       database.ref("/").set({
         contagemJogador:0,estadoJogo:0,players:{}
