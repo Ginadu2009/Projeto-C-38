@@ -7,6 +7,9 @@ var form, player, allPlayers;
 var contagemJogador;
 var carro1, carro2, carro1Img, carro2Img;
 var pista;
+var coin, coinImg;
+var combustivel, combustivelImg;
+var obstaculos, obstaculo1, obstaculo2;
 var carros = []
 var estadoJogo;
 
@@ -15,13 +18,17 @@ function preload() {
   carro1Img = loadImage("assets/car1.png");
   carro2Img = loadImage("assets/car2.png");
   pistaImg = loadImage("assets/PISTA.png");
-
+  obstaculo1 = loadImage("assets/obstacle1.png")
+  obstaculo2 = loadImage("assets/obstacle2.png")
+  coin = loadImage("assets/goldCoin.png")
+  combustivel = loadImage("assets/fuel.png")
 }
 
 function setup() {
   canvas = createCanvas(windowWidth, windowHeight);
   database = firebase.database();
   game = new Game();
+  game.getState();
   game.start();
 
 }
